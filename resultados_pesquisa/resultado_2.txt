@@ -1,0 +1,23 @@
+URL: https://chatpaper.com/chatpaper/pt/paper/106481
+
+Can 1B LLM Surpass 405B LLM? Rethinking Compute-Optimal Test-Time Scaling
+ChatPaper
+ChatPaper
+Sign in
+Join Discord
+Magnet
+ArXiv
+Venues
+Collection
+Magnet
+ArXiv
+Venues
+1.
+Pode um LLM de 1B superar um LLM de 405B? Repensando a Escala Ótima de Cálculo no Tempo de Teste
+Can 1B LLM Surpass 405B LLM? Rethinking Compute-Optimal Test-Time Scaling
+cs.CL
+11 Feb 2025
+Runze Liu, Junqi Gao, Jian Zhao, Kaiyan Zhang, Xiu Li, Biqing Qi, Wanli Ouyang, Bowen Zhou
+Shanghai AI Laboratory; Tsinghua University; Harbin Institute of Technology; BUPT
+A Escalação em Tempo de Teste (TTS) é um método importante para melhorar o desempenho de Modelos de Linguagem de Grande Escala (LLMs) por meio do uso de computação adicional durante a fase de inferência. No entanto, os estudos atuais não analisam sistematicamente como os modelos de política, os Modelos de Recompensa de Processo (PRMs) e a dificuldade do problema influenciam a TTS. Essa falta de análise limita a compreensão e o uso prático dos métodos de TTS. Neste artigo, focamos em duas questões centrais: (1) Qual é a abordagem ideal para escalar a computação em tempo de teste entre diferentes modelos de política, PRMs e níveis de dificuldade do problema? (2) Até que ponto a computação estendida pode melhorar o desempenho dos LLMs em tarefas complexas, e modelos de linguagem menores podem superar os maiores por meio dessa abordagem? Através de experimentos abrangentes nas tarefas MATH-500 e AIME24 desafiadoras, temos as seguintes observações: (1) A estratégia de TTS otimizada para computação é altamente dependente da escolha do modelo de política, PRM e dificuldade do problema. (2) Com nossa estratégia de TTS otimizada para computação, modelos de política extremamente pequenos podem superar modelos maiores. Por exemplo, um LLM de 1B pode exceder um LLM de 405B no MATH-500. Além disso, tanto no MATH-500 quanto no AIME24, um LLM de 0,5B supera o GPT-4o, um LLM de 3B ultrapassa um LLM de 405B, e um LLM de 7B vence o o1 e o DeepSeek-R1, enquanto apresenta maior eficiência de inferência. Essas descobertas mostram a importância de adaptar as estratégias de TTS às características específicas de cada tarefa e modelo, e indicam que a TTS é uma abordagem promissora para aprimorar as habilidades de raciocínio dos LLMs.
+Comparison between the performance of smaller LLMs compute-optimal TTS and that of larger LLMs CoT on MATH-500 and AIME24. (a) & (d) Llama-3.2-3B-Instruct surpasses Llama-3.1-405B-Instruct and GPT-4o on MATH-500 and AIME24; (b) & (e) DeepSeek-R1-Distill-1.5B outperforms o1-preview on MATH-500 and AIME24, and surpasses o1-mini on MATH-500; (c) & (f ) DeepSeek-R1-Distill-7B beats o1 on MATH-500 and AIME24, and exceeds DeepSeek-R1 on AIME24.

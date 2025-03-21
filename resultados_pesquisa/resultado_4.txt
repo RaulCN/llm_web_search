@@ -1,0 +1,426 @@
+URL: https://www.linkedin.com/pulse/smarter-inference-larger-models-promise-test-time-scaling-kumar-zdjac
+
+Test-Time Scaling: Optimizing Large Language Models
+Agree & Join LinkedIn
+By clicking Continue to join or sign in, you agree to LinkedIn’s
+User Agreement
+,
+Privacy Policy
+, and
+Cookie Policy
+.
+Skip to main content
+LinkedIn
+Articles
+People
+Learning
+Jobs
+Games
+Join now
+Sign in
+Smarter Inference, Not Larger Models: The Promise of Test-Time Scaling
+Report this article
+Brikesh Kumar
+Brikesh Kumar
+Founder & CEO of Kaamsha Technologies
+Published Feb 20, 2025
++ Follow
+Scaling large language models comes at a steep price: a single training run of the largest models can cost millions of dollars and consume vast energy. Test-time scaling (TTS) offers a new approach: instead of building ever-larger models, it dynamically adjusts a model's reasoning process during inference.
+This approach promises to deliver top-tier performance with fewer parameters and lower costs.
+Test-time scaling (TTS)
+inverts that logic: it keeps model size and training sets moderate, then dials up or down the “thinking” stage
+after
+training. By carefully controlling how a model reasons at
+inference time
+, these methods often let a small model
+match or surpass
+a big one.
+Below are six leading papers that push the boundaries of TTS, each presenting a unique approach to optimizing the model’s computational budget at inference. By analyzing them, we can see how the next generation of LLMs might think with
+fewer parameters
+,
+less energy cost
+, and
+surprisingly strong
+performance.
+1. Compute-Optimal Scaling (Liu et al., 2025)
+Paper
+:
+"
+Can 1B LLM Surpass 405B LLM
+? Rethinking Compute-Optimal Test-Time Scaling"
+This paper shows how a
+small language model
+can match much larger models by
+double-checking
+its work at inference. Specifically, it
+splits
+a solution into short steps,
+scores
+them (to see if they might be wrong), and
+discards
+any flawed paths. The model thus only uses extra computation for the trickier parts, a method they call
+test-time scaling
+.
+To manage solution steps, the authors
+frame the reasoning process as a Markov Decision Process (MDP)
+, where
+states
+represent the model’s partial solutions and
+actions
+are potential next steps. A
+policy model
+then chooses which action (i.e., next reasoning step) to take, guided by a
+reward function
+that scores correctness or plausibility. Compute budgets are allocated dynamically: if the problem seems complex or the model’s confidence is low, it spawns more steps (actions) to explore alternative solutions. Conversely, if the model quickly arrives at a likely correct answer, it uses fewer steps—thereby saving computation. This structure ensures that
+the model applies extra “thinking”
+only when needed, boosting accuracy on tough math problems without retraining a bigger model.
+Core Idea
+:
+Adaptive Compute Budgets
+: Instead of using a fixed amount of computation for all queries, the model
+allocates more tokens or search steps
+only for difficult problems.
+Difficulty Tiers
+: They classify questions into easy, medium, and hard categories, each receiving different multiples of the “standard” compute budget (like 2,048 tokens for easy vs. 32,768 for hard).
+Policy + Reward Models
+: A small “policy” model samples multiple solutions, and a separate “reward” model (or verifier) picks the correct outcome. This synergy helps smaller LLMs systematically explore complex solutions.
+Key Findings
+:
+A
+3B-parameter
+LLM, armed with test-time scaling, matched or surpassed a
+405B-parameter
+baseline on certain math benchmarks (e.g., MATH-500).
+135:1 parameter efficiency
+: Hard tasks needed roughly 16× more inference tokens to reach high accuracy, while easy tasks used minimal computation.
+Takeaway
+: If your system can measure or estimate problem difficulty, you can
+push smaller models
+into deeper reasoning only when needed—leading to large reductions in overall compute costs.
+Where to Learn More
+:
+GitHub (
+https://github.com/RyanLiu112/compute-optimal-tts
+).
+Paper: (
+https://arxiv.org/pdf/2502.06703
+)
+2. LIMO (Less is more) Framework (Ye et al., 2025)
+This paper explores ways to unlock domain knowledge that a model has already learned during large-scale pre-training—by carefully designing the fine-tuning data. Rather than throwing tens of thousands of average-quality examples at a model, the authors argue that
+highly curated
+samples (e.g., intricate math problems with thoroughly worked-out solutions) can
+activate
+the model’s latent abilities. The model already 'knows' math or coding concepts but needs clear demonstrations of how to apply them in multi-step reasoning. During inference, the model leverages these curated exemplars to decide when to
+expand or refine
+a solution path, effectively doing more “thinking” only for the hardest parts.
+Core Idea
+:
+Quality Over Quantity
+: You don’t need 100k+ training samples. Instead, gather a
+tiny
+,
+well-curated
+set of
+817
+carefully chosen math problems.
+Hidden Knowledge Activation
+: Modern LLMs have already absorbed vast mathematical knowledge during pre-training. The curated examples “teach” the model
+how
+to apply that knowledge in longer, multi-step solutions.
+Cognitive Template
+: For each problem, they embed thorough step-by-step solutions—some short steps for simple transitions and deeper expansions for trickier logic. They also insert verification checkpoints to catch typical errors.
+Key Findings
+:
+Achieved
+57.1%
+on the challenging AIME (American Invitational Mathematics Examination), up from
+6.5%
+baseline, with
+only 817 problems
+.
+Demonstrated excellent out-of-distribution generalization, achieving up to 40% improvement on brand-new tasks not in the training set.
+This drastically reduces the data-collection burden—
+“less is more”
+if you pick the
+right
+examples.
+Practical Guidance
+:
+Filter problems
+so that each is genuinely challenging.
+Include
+detailed reasoning
+steps so the model sees how to “think.”
+Combine with TTS (like letting the model generate extended reasonings at inference).
+Where to Learn More
+:
+GitHub
+:
+https://github.com/GAIR-NLP/LIMO
+Paper
+:
+[arXiv link]
+3. Agentic Reasoning with MindMaps (Ye et al., 2025)
+Often referred to as the
+“MindMap” or “Agentic Reasoning”
+approach, this paper shows how a model can
+build a dynamic knowledge graph
+of relevant ideas while solving complex tasks—much like a mind map. Each
+node
+captures a specific concept or theorem, and
+edges
+represent logical or causal dependencies among them. This graph evolves as the model tests different solution branches,
+pruning
+unhelpful expansions. By systematically linking concepts, the model avoids getting lost in irrelevant details; in other words, it puts extra effort where it is needed.
+Source:
+Core Idea:
+MindMap Architecture
+: Models build a dynamic knowledge graph (“mindmap”) of concepts and theorems as they solve problems. Each node is a key idea, and edges are logical or causal links.
+Selective Expansion
+: The system only expands relevant nodes, pruning irrelevant branches. This prevents the LLM from drowning in extraneous steps, allowing it to focus on the necessary subtopics.
+Monte Carlo Tree Search (MCTS) + Associative Memory
+: They combine a search procedure that explores multiple lines of reasoning with on-the-fly “associative memory” retrieval. This mirrors how humans revisit earlier ideas or incorporate related sub-theorems.
+Key Findings
+:
+Reduces redundant computations by 38% by systematically pruning unhelpful paths.
+Yields more “human-like” problem-solving footprints, bridging knowledge from different math or science domains in a single “map.”
+Potentially more
+interpretable
+solutions—since you can see a
+graph
+that outlines which theorems or facts led to the final answer.
+Where to Learn More
+:
+Paper
+:
+https://arxiv.org/pdf/2502.04644.pdf
+4. Tournament-Style Scaling (Chen et al., 2024)
+This paper introduces a test-time optimization method mimicking a tournament bracket among multiple solution attempts. First, the model generates several candidate solutions in parallel for each question (like different 'players' in a bracket). Then, it
+compares
+or “matches” these candidates pairwise, leveraging a specialized metric (or “reward model”) to judge correctness. The weaker solutions are
+eliminated
+, and the stronger ones move to the next round. The system refines partial steps over multiple knockout rounds and identifies the best final answer.
+Generate Many Solutions
+: For a single question, produce N = 64 solution paths from the same model.
+Bracket Elimination
+: Compare them pairwise with a “process reward model” that can judge partial correctness.
+Iterative Pruning
+: Over multiple knockout rounds (K=7, for instance), discard weaker solutions and keep the ones with the highest verified correctness.
+Source:
+Key Findings
+:
+Failure rate
+(the probability all solutions are wrong) shrinks roughly as 1/(N × K), so you can drastically cut errors with enough bracket rounds.
+Achieved
+448×
+fewer mistakes compared to naive single-sample generation in certain math tasks.
+Similar to doing “voting,” but more structured: each round also eliminates partial errors in the chain-of-thought.
+5. s1 Framework (Muennighoff et al., 2025)
+This paper explores how
+careful sampling
+of partial solutions—paired with
+lightweight verification
+steps—can allow
+smaller large-language models
+to handle challenging tasks on par with (or better than) much bigger ones. Concretely, the authors propose a method where the model
+generates multiple short solution drafts
+and then re-evaluates them (e.g., using a smaller “judge” network or rule-based checks) before continuing. By doing so, the system
+stops
+unpromising solution paths early and invests extra inference steps only where necessary, an idea akin to “test-time scaling on demand.”
+Core Idea
+:
+Minimal Training Data
+: They create “s1K,” a set of exactly 1,000 carefully filtered problems focusing on diversity and difficulty.
+Budget Forcing
+: A practical approach at inference time where you literally
+force the model to keep thinking
+by appending “Wait” or suppressing its usual end-of-solution token. Conversely, you can forcibly cut it off if it loops aimlessly.
+Straightforward
+: No complicated multi-agent or RL approach. Just give the model a mechanism to do either
+short or extended chain-of-thought
+based on your preference.
+Key Findings
+:
+With only 26 minutes of fine-tuning (16 GPUs), a “s1-32B” model nearly matched or exceeded big closed-source LLMs on math tasks.
+“Budget forcing” shows the simplest possible slope in test-time scaling:
+the more times you say “Wait,” the higher the chance the model corrects itself.
+Where to Learn More
+:
+GitHub
+:
+https://github.com/simplescaling/s1
+Paper
+:
+https://arxiv.org/pdf/2501.19393
+What does it mean to make the model think more or less
+“Letting the model keep thinking” does not mean an LLM literally stops to reconsider. It refers to
+guiding the token-by-token generation
+so that output is extended or revised instead of halting at the first solution.
+Suppressing the End Token
+: During decoding, the model’s attempt to end the answer can be overridden by injecting prompts like “Wait,” encouraging further elaboration or error-checking.
+Iterative Prompts
+: Partial outputs can be reintroduced as new prompts, prompting the model to reflect, refine, or correct its reasoning through additional steps.
+Search-Based Techniques
+: Methods such as beam search or bracket-style elimination generate multiple solution paths, discard weaker ones, and refine promising candidates.
+In essence, “keep thinking” involves
+decoding strategies
+that push the model to produce
+more tokens
+or explore
+alternative solutions
+before arriving at a final answer.
+Why These Research can change the Game
+Massive Savings in Cost and Energy:
+Instead of training 100B–400B parameter models, you could train 1B–7B ones and apply TTS only for the tricky queries—reaping 70%–90% energy savings.
+Better Accuracy on Hard Questions
+“Compute-Optimal Scaling” and “Tournament-Style” show that scaling inference time (rather than parameter count) helps small LLMs produce big-model-level solutions.
+Impressive Out-of-Distribution Results
+Approaches like LIMO’s curated sets or MindMaps’ dynamic concept expansion can tackle brand-new tasks without re-training.
+Transparency & Interpretability
+MindMaps, CoT expansions, and bracket eliminations can reveal
+why
+the model arrived at a certain answer, bridging it closer to human-readable logic.
+Conclusion
+These papers highlight that the future of AI may depend not on how large models can grow, but on how intelligently they can reason with what they already know. As TTS methods evolve, they promise to make AI both stronger and more accessible, paving the way for innovative applications across industries.
+Visit
+Kaamsha Technologies
+to explore AI and ML solutions tailored to drive transformative change in your business.
+Driving Digital Transformation
+Driving Digital Transformation
+313 followers
++ Subscribe
+Like
+Comment
+Copy
+LinkedIn
+Facebook
+Twitter
+Share
+6
+To view or add a comment,
+sign in
+More articles by Brikesh Kumar
+Beyond Version Control: A Smarter Way to Test and Validate LLM Prompts
+Mar 19, 2025
+Beyond Version Control: A Smarter Way to Test and Validate LLM Prompts
+Introduction: The Challenges of Managing Prompts in AI Applications In recent years, Large Language Models (LLMs) have…
+4
+1 Comment
+Evaluating RAPID: A New Approach to Long-Context Inference
+Mar 5, 2025
+Evaluating RAPID: A New Approach to Long-Context Inference
+Introduction: The Growing Challenge of Long-Context LLMs The ability of large language models (LLMs) to process massive…
+7
+DocLing: An Open-Source Alternative to SaaS-Based Document Parsing
+Feb 12, 2025
+DocLing: An Open-Source Alternative to SaaS-Based Document Parsing
+In my previous article, Document Parsing: Challenges, Options, and Solutions, I discussed the evolving landscape of…
+12
+1 Comment
+NVIDIA Cosmos: Ushering in the Future of Physical AI
+Feb 5, 2025
+NVIDIA Cosmos: Ushering in the Future of Physical AI
+Introduction At CES 2025, NVIDIA CEO Jensen Huang introduced the Cosmos World Foundation Model (WFM) platform, an…
+11
+DeekSeek R1 vs. OpenAI O1: A Look at Next-Generation LLM Training, Architecture, and Cost
+Jan 28, 2025
+DeekSeek R1 vs. OpenAI O1: A Look at Next-Generation LLM Training, Architecture, and Cost
+Large Language Models (LLMs) power everything from chatbots to advanced text classification systems. Understanding how…
+9
+The Future of SaaS: From Applications to AI Orchestrators
+Jan 23, 2025
+The Future of SaaS: From Applications to AI Orchestrators
+Picture this: It's 2035, and your morning begins with a simple conversation—not with the Alexa or Siri of today, but…
+12
+Document Parsing: Challenges, Options, and Solutions
+Jan 8, 2025
+Document Parsing: Challenges, Options, and Solutions
+Introduction Companies process millions of documents daily, with over 80% of business information locked in…
+11
+Large Concept Models: A Step Toward Conceptual AI Understanding
+Jan 2, 2025
+Large Concept Models: A Step Toward Conceptual AI Understanding
+Introduction The AI world is dominated by Large Language Models that process text word-by-word — but humans don't think…
+8
+Evaluating Asynchronous Function Calling in Large Language Models
+Dec 18, 2024
+Evaluating Asynchronous Function Calling in Large Language Models
+Introduction Modern Large Language Models (LLMs) excel at generating responses and executing function calls, but their…
+13
+2 Comments
+AI Agents in the Lab: Redefining the Boundaries of Scientific Discovery
+Dec 12, 2024
+AI Agents in the Lab: Redefining the Boundaries of Scientific Discovery
+Imagine a world where time, resources, or human limitations don’t constrain the discovery of life-saving treatments. As…
+11
+Show more
+See all articles
+Sign in
+Stay updated on your professional world
+Sign in
+By clicking Continue to join or sign in, you agree to LinkedIn’s
+User Agreement
+,
+Privacy Policy
+, and
+Cookie Policy
+.
+New to LinkedIn?
+Join now
+Explore topics
+Sales
+Marketing
+IT Services
+Business Administration
+HR Management
+Engineering
+Soft Skills
+See All
+LinkedIn
+© 2025
+About
+Accessibility
+User Agreement
+Privacy Policy
+Cookie Policy
+Copyright Policy
+Brand Policy
+Guest Controls
+Community Guidelines
+العربية (Arabic)
+বাংলা (Bangla)
+Čeština (Czech)
+Dansk (Danish)
+Deutsch (German)
+Ελληνικά (Greek)
+English (English)
+Español (Spanish)
+فارسی (Persian)
+Suomi (Finnish)
+Français (French)
+हिंदी (Hindi)
+Magyar (Hungarian)
+Bahasa Indonesia (Indonesian)
+Italiano (Italian)
+עברית (Hebrew)
+日本語 (Japanese)
+한국어 (Korean)
+मराठी (Marathi)
+Bahasa Malaysia (Malay)
+Nederlands (Dutch)
+Norsk (Norwegian)
+ਪੰਜਾਬੀ (Punjabi)
+Polski (Polish)
+Português (Portuguese)
+Română (Romanian)
+Русский (Russian)
+Svenska (Swedish)
+తెలుగు (Telugu)
+ภาษาไทย (Thai)
+Tagalog (Tagalog)
+Türkçe (Turkish)
+Українська (Ukrainian)
+Tiếng Việt (Vietnamese)
+简体中文 (Chinese (Simplified))
+正體中文 (Chinese (Traditional))
+Language
